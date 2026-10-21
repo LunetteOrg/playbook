@@ -1,0 +1,10 @@
+# Values the playbook's skills read. Skills are never edited to fit a company:
+# what is particular to it goes here.
+
+# Brands the company publishes under, and where each one's design system lives.
+# The apply-design-system skill reads this list.
+brands: []
+#  - id: example
+#    name: Example Ltd
+#    design-system: https://example.com/design-system   # a URL or a path in this repository
+#    default: true

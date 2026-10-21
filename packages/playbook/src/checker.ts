@@ -1,0 +1,301 @@
+// Structural check of a playbook, driven by its schema.yaml.
+//
+// Every link between entries lives in the header. The check verifies that:
+//   A. every link leads to an entry that exists (in the repository, or in the
+//      schema's list of pending entries, kept elsewhere for now);
+//   B. every link leads to something still valid: no entry links to a retired
+//      one, and a valid entry does not link to a provisional one;
+//   C. the text mentions only codes that the header declares as links;
+// plus the minimum those three need: well-formed headers, allowed values, file
+// names that match codes, unique identifiers.
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { parse as parseYaml } from 'yaml'
+
+export type Result = { errors: string[]; warnings: string[] }
+
+type Category = 'valid' | 'provisional' | 'retired'
+
+type KindSchema = {
+  folder: string
+  prefix?: string
+  file?: string
+  name?: string
+  required?: string[]
+  fields?: Record<string, string[]>
+  status: { field: string; values: Record<string, Category> }
+  links?: Record<string, string>
+}
+
+type Kind = KindSchema & { type: string }
+
+type Schema = { kinds: Kind[]; pending?: string }
+
+type Entry = {
+  kind: Kind
+  id: string
+  path: string
+  header: Record<string, unknown>
+  body: string
+}
+
+type Target = { id: string; kind: Kind; status: string; inRepository: boolean }
+
+export function check(root: string): Result {
+  const errors: string[] = []
+  const warnings = new Set<string>()
+
+  const schema = readSchema(root)
+  if (schema.kinds.length === 0) {
+    return { errors: ['schema.yaml: missing, or it describes no entry type'], warnings: [] }
+  }
+
+  const entries = schema.kinds.flatMap((kind) => readEntries(root, kind, errors))
+  const codePattern = codeRegex(schema.kinds)
+  const targets = indexTargets(root, schema, entries, errors)
+
+  for (const e of entries) {
+    const source = category(e.kind, statusOf(e))
+    const declared = new Set<string>()
+
+    for (const [field, targetKindName] of Object.entries(e.kind.links ?? {})) {
+      const targetKind = schema.kinds.find((k) => k.type === targetKindName)
+      for (const value of list(get(e.header, field))) {
+        declared.add(value)
+        const target = targets.get(value)
+        if (!target) {
+          errors.push(`${e.path}: "${field}" links ${value}, which does not exist`)
+          continue
+        }
+        if (target.kind !== targetKind) {
+          errors.push(
+            `${e.path}: "${field}" links ${value}, which is a ${target.kind.type}, not a ${targetKindName}`,
+          )
+          continue
+        }
+        if (!target.inRepository) warnings.add(`${value} is linked but still pending`)
+        if (source === 'retired') continue
+        const targetCategory = category(target.kind, target.status)
+        if (targetCategory === 'retired') {
+          errors.push(`${e.path}: "${field}" links ${value}, whose status is "${target.status}"`)
+        } else if (source === 'valid' && targetCategory === 'provisional') {
+          errors.push(
+            `${e.path}: status is "${statusOf(e)}" but "${field}" links ${value}, whose status is "${target.status}"`,
+          )
+        }
+      }
+    }
+
+    const linkFields = new Set(Object.keys(e.kind.links ?? {}))
+    const text = [e.body, ...descriptiveValues(e.header, linkFields)].join('\n')
+    for (const code of new Set(text.match(codePattern) ?? [])) {
+      if (code !== e.id && !declared.has(code)) {
+        errors.push(`${e.path}: mentions ${code} in the text but not among the header links`)
+      }
+    }
+  }
+
+  return { errors: [...new Set(errors)].sort(), warnings: [...warnings].sort() }
+}
+
+function readSchema(root: string): Schema {
+  const file = join(root, 'schema.yaml')
+  if (!existsSync(file)) return { kinds: [] }
+  const schema = parseYaml(readFileSync(file, 'utf8')) as {
+    types?: Record<string, KindSchema>
+    pending?: string
+  } | null
+  const kinds = Object.entries(schema?.types ?? {}).map(([type, kind]) => ({ type, ...kind }))
+  return { kinds, pending: schema?.pending }
+}
+
+function readEntries(root: string, kind: Kind, errors: string[]): Entry[] {
+  const folder = join(root, kind.folder)
+  if (!existsSync(folder)) return []
+  const entries: Entry[] = []
+
+  const files = kind.file
+    ? readdirSync(folder, { withFileTypes: true })
+        .filter((d) => d.isDirectory())
+        .map((d) => ({ path: `${kind.folder}/${d.name}/${kind.file}`, name: d.name }))
+    : readdirSync(folder)
+        .filter((f) => f.endsWith('.md') && f !== 'README.md')
+        .map((f) => ({ path: `${kind.folder}/${f}`, name: f }))
+
+  for (const { path, name } of files.sort((a, b) => a.path.localeCompare(b.path))) {
+    if (!existsSync(join(root, path))) {
+      errors.push(`${path}: missing`)
+      continue
+    }
+    const parsed = parse(root, path, errors)
+    if (!parsed) continue
+    const id = identify(kind, name, parsed.header, path, errors)
+    checkRequired(kind, path, parsed.header, errors)
+    checkStatus(kind, path, parsed.header, errors)
+    checkFields(kind, path, parsed.header, errors)
+    entries.push({ kind, id, path, ...parsed })
+  }
+  return entries
+}
+
+function identify(
+  kind: Kind,
+  name: string,
+  header: Record<string, unknown>,
+  path: string,
+  errors: string[],
+): string {
+  if (kind.prefix) {
+    const code = header.code === undefined ? '' : String(header.code)
+    const match = new RegExp(`^${kind.prefix}-(\\d+)-[a-z0-9]+(?:-[a-z0-9]+)*\\.md$`).exec(name)
+    if (!match) {
+      errors.push(
+        `${path}: the file name must be ${kind.prefix}-<n>-<topic>.md, with a lowercase, hyphenated topic`,
+      )
+    } else if (code && code !== `${kind.prefix}-${match[1]}`) {
+      errors.push(`${path}: code ${code} does not match the file name`)
+    }
+    return code || name
+  }
+  const id = kind.file ? name : name.replace(/\.md$/, '')
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
+    errors.push(`${path}: the name must be lowercase and hyphenated`)
+  }
+  if (kind.name) {
+    const declared = get(header, kind.name)
+    if (declared !== undefined && declared !== id) {
+      errors.push(`${path}: "${kind.name}" is "${declared}", it must be "${id}"`)
+    }
+  }
+  return id
+}
+
+function indexTargets(root: string, schema: Schema, entries: Entry[], errors: string[]): Map<string, Target> {
+  const targets = new Map<string, Target>()
+  const paths = new Map<string, string[]>()
+
+  for (const e of entries) {
+    paths.set(e.id, [...(paths.get(e.id) ?? []), e.path])
+    targets.set(e.id, { id: e.id, kind: e.kind, status: statusOf(e), inRepository: true })
+  }
+  for (const [id, files] of paths) {
+    if (files.length > 1) errors.push(`${id} appears in more than one file: ${files.sort().join(', ')}`)
+  }
+
+  // Entries kept elsewhere for now, typically during a migration: code and
+  // status, one per line, tab-separated.
+  if (schema.pending) {
+    const file = join(root, schema.pending)
+    if (existsSync(file)) {
+      for (const line of readFileSync(file, 'utf8').split('\n')) {
+        if (!line.trim() || line.startsWith('#')) continue
+        const [id, status] = line.split('\t').map((s) => s.trim())
+        const kind = schema.kinds.find((k) => k.prefix && id.startsWith(`${k.prefix}-`) && /-\d+$/.test(id))
+        if (kind && !targets.has(id)) targets.set(id, { id, kind, status, inRepository: false })
+      }
+    } else {
+      errors.push(`${schema.pending}: listed as "pending" in schema.yaml but missing`)
+    }
+  }
+  return targets
+}
+
+function parse(root: string, path: string, errors: string[]) {
+  const text = readFileSync(join(root, path), 'utf8')
+  const parts = /^---\n([\s\S]*?)\n---\n?([\s\S]*)$/.exec(text)
+  if (!parts) {
+    errors.push(`${path}: missing YAML header`)
+    return undefined
+  }
+  let header: unknown
+  try {
+    header = parseYaml(parts[1])
+  } catch (e) {
+    errors.push(`${path}: invalid YAML header (${(e as Error).message.split('\n')[0]})`)
+    return undefined
+  }
+  if (typeof header !== 'object' || header === null) {
+    errors.push(`${path}: missing YAML header`)
+    return undefined
+  }
+  return { header: header as Record<string, unknown>, body: parts[2] }
+}
+
+function checkRequired(kind: Kind, path: string, header: Record<string, unknown>, errors: string[]) {
+  const fields = [
+    ...(kind.prefix ? ['code'] : []),
+    ...(kind.name ? [kind.name] : []),
+    kind.status.field,
+    ...(kind.required ?? []),
+  ]
+  for (const field of fields) {
+    const value = get(header, field)
+    if (value === undefined || value === null) errors.push(`${path}: missing field "${field}"`)
+  }
+}
+
+function checkStatus(kind: Kind, path: string, header: Record<string, unknown>, errors: string[]) {
+  const value = get(header, kind.status.field)
+  if (value !== undefined && value !== null && !(String(value) in kind.status.values)) {
+    const allowed = Object.keys(kind.status.values).join(', ')
+    errors.push(`${path}: "${kind.status.field}" is "${value}"; allowed: ${allowed}`)
+  }
+}
+
+function checkFields(kind: Kind, path: string, header: Record<string, unknown>, errors: string[]) {
+  for (const [field, allowed] of Object.entries(kind.fields ?? {})) {
+    const value = get(header, field)
+    if (value !== undefined && value !== null && !allowed.includes(String(value))) {
+      errors.push(`${path}: "${field}" is "${value}"; allowed: ${allowed.join(', ')}`)
+    }
+  }
+}
+
+function statusOf(e: Entry): string {
+  const value = get(e.header, e.kind.status.field)
+  return value === undefined || value === null ? '' : String(value)
+}
+
+function category(kind: Kind, status: string): Category | undefined {
+  return kind.status.values[status]
+}
+
+// Header values that are not links, flattened to text, so that codes mentioned
+// there are checked like codes mentioned in the body.
+function descriptiveValues(header: Record<string, unknown>, linkFields: Set<string>, prefix = ''): string[] {
+  const values: string[] = []
+  for (const [key, value] of Object.entries(header)) {
+    const path = prefix ? `${prefix}.${key}` : key
+    if (linkFields.has(path) || path === 'code') continue
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      values.push(...descriptiveValues(value as Record<string, unknown>, linkFields, path))
+    } else if (value !== undefined && value !== null) {
+      values.push(Array.isArray(value) ? value.join(', ') : String(value))
+    }
+  }
+  return values
+}
+
+function codeRegex(kinds: Kind[]): RegExp {
+  const prefixes = kinds.flatMap((k) => (k.prefix ? [k.prefix] : [])).sort((a, b) => b.length - a.length)
+  return prefixes.length === 0 ? /(?!)/g : new RegExp(`\\b(?:${prefixes.join('|')})-\\d+\\b`, 'g')
+}
+
+function get(header: Record<string, unknown>, path: string): unknown {
+  let value: unknown = header
+  for (const key of path.split('.')) {
+    if (!value || typeof value !== 'object') return undefined
+    value = (value as Record<string, unknown>)[key]
+  }
+  return value
+}
+
+function list(value: unknown): string[] {
+  if (Array.isArray(value)) return value.map(String)
+  if (typeof value === 'string')
+    return value
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  return []
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "files": { "includes": ["**", "!**/node_modules", "!**/dist", "!packages/create-playbook/templates"] },
+  "formatter": { "indentStyle": "space", "lineWidth": 110 },
+  "javascript": { "formatter": { "quoteStyle": "single", "semicolons": "asNeeded" } }
+}

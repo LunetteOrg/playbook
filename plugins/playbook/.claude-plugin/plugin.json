@@ -1,0 +1,5 @@
+{
+  "name": "playbook",
+  "description": "Skills shared by every company playbook built on the Lunette playbook. They read the company's values from .playbook/config.yaml and are never edited to fit a company.",
+  "author": { "name": "LunetteOrg" }
+}

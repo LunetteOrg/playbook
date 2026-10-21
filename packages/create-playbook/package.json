@@ -1,0 +1,19 @@
+{
+  "name": "@lntt/create-playbook",
+  "version": "0.0.0",
+  "description": "Creates a company playbook from the Lunette playbook template: pnpm create @lntt/playbook <name>.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.12"
+  },
+  "bin": {
+    "create-playbook": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
+  "devDependencies": {
+    "@lntt/playbook": "workspace:*"
+  }
+}

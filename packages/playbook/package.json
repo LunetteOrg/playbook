@@ -1,0 +1,22 @@
+{
+  "name": "@lntt/playbook",
+  "version": "0.0.0",
+  "description": "Checks and installs a company playbook: rules, processes, procedures, tools and skills as plain files.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.12"
+  },
+  "bin": {
+    "playbook": "./src/cli.ts"
+  },
+  "exports": {
+    ".": "./src/checker.ts"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "yaml": "^2.8.0"
+  }
+}

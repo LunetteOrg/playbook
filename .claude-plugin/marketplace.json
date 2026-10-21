@@ -1,0 +1,12 @@
+{
+  "name": "playbook",
+  "description": "The Lunette playbook plugin.",
+  "owner": { "name": "LunetteOrg" },
+  "plugins": [
+    {
+      "name": "playbook",
+      "source": "./plugins/playbook",
+      "description": "Skills shared by every company playbook: apply-design-system."
+    }
+  ]
+}

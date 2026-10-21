@@ -1,0 +1,77 @@
+# Structure of this playbook: entry types, fields, statuses and links.
+# `playbook check` reads this file. To add an entry type, a field or a link,
+# change the schema, not the checker.
+#
+# Every status value belongs to a category:
+# - valid: it applies;
+# - provisional: in preparation, it does not apply yet;
+# - retired: it no longer applies.
+# No entry links to a retired entry; a valid entry does not link to a
+# provisional one.
+
+# Optional: entries that still live elsewhere, for example during a migration.
+# One "CODE<tab>status" per line. Links to them are warnings, not errors.
+# pending: migration/pending.tsv
+
+types:
+  rule:
+    folder: rules
+    prefix: RULE               # files RULE-<n>-<topic>.md, «code» in the header
+    required: [applies]
+    fields:
+      applies: [everywhere, where-cited]
+    status:
+      field: status
+      values: { in-force: valid, draft: provisional, superseded: retired }
+    links:
+      rules: rule
+      processes: process
+      procedures: procedure
+      tools: tool
+
+  process:
+    folder: processes
+    prefix: PROCESS
+    required: [owner]
+    status:
+      field: status
+      values: { in-force: valid, draft: provisional, superseded: retired }
+    links:
+      procedures: procedure    # the procedures of the process, in order
+      processes: process
+      rules: rule
+      tools: tool
+
+  procedure:
+    folder: procedures
+    prefix: PROCEDURE
+    required: [owner]
+    status:
+      field: status
+      values: { in-force: valid, draft: provisional, superseded: retired }
+    links:
+      procedures: procedure
+      processes: process
+      rules: rule
+      tools: tool
+      skills: skill
+
+  tool:
+    folder: tools              # files <tool-name>.md, linked by file name
+    required: [name]
+    status:
+      field: status
+      values: { active: valid, trial: provisional, dismissed: retired }
+    links:
+      rules: rule
+
+  skill:
+    folder: skills
+    file: SKILL.md             # skills/<name>/SKILL.md, Agent Skills format
+    name: name                 # «name» matches the folder name
+    required: [description]
+    status:
+      field: metadata.status
+      values: { in-force: valid, trial: provisional, draft: provisional, superseded: retired }
+    links:
+      metadata.rules: rule

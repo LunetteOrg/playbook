@@ -1,0 +1,11 @@
+{
+  "name": "{{name}}",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "playbook": "playbook"
+  },
+  "devDependencies": {
+    "@lntt/playbook": "^0.0.0"
+  }
+}
