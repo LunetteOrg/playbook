@@ -6,6 +6,6 @@
     "playbook": "playbook"
   },
   "devDependencies": {
-    "@lntt/playbook": "^0.0.0"
+    "@lntt/playbook": "^{{version}}"
   }
 }

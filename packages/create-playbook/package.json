@@ -4,16 +4,35 @@
   "description": "Creates a company playbook from the Lunette playbook template: pnpm create @lntt/playbook <name>.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LunetteOrg/playbook.git",
+    "directory": "packages/create-playbook"
+  },
+  "homepage": "https://github.com/LunetteOrg/playbook#readme",
+  "bugs": "https://github.com/LunetteOrg/playbook/issues",
   "engines": {
     "node": ">=24.12"
   },
   "bin": {
     "create-playbook": "./src/index.ts"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "scripts": {
+    "build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "prepack": "pnpm run build",
     "test": "node --test test/*.test.ts"
   },
   "devDependencies": {
     "@lntt/playbook": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "bin": {
+      "create-playbook": "./dist/index.js"
+    }
   }
 }

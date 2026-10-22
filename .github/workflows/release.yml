@@ -1,0 +1,62 @@
+name: Release the playbook packages
+
+# Triggered by publishing a GitHub Release (always backed by a tag):
+#   gh release create vX.Y.Z --generate-notes
+# Every published package shares one version, and the tag must match it
+# (docs/process/delivery.md). A release marked as pre-release is a dry run:
+# every check runs, each package is packed and `npm publish --dry-run` reads the
+# tarball; nothing reaches npm.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # OIDC trusted publishing and provenance: no npm token
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      DRY_RUN: ${{ github.event.release.prerelease && '--dry-run --tag next' || '' }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+      # Trusted publishing needs npm >= 11.5.1.
+      - run: npm install -g npm@^11.5.1
+      - run: pnpm install --frozen-lockfile
+
+      - name: Release tag must match the version of every published package
+        run: node scripts/packages-version.mts check "${GITHUB_REF_NAME#v}"
+
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+        env:
+          PLAYBOOK_SMOKE: '1'
+
+      # Auth is OIDC, through the trusted publisher configured on npmjs.com for each
+      # package, this repository and this workflow. Each package is packed by pnpm,
+      # which runs prepack (the build) and applies publishConfig; npm publishes the
+      # tarball. A version already on npm is skipped, so a failed run can be re-run.
+      - name: Publish
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          tarballs="$RUNNER_TEMP/tarballs"
+          dirs="$(node scripts/packages-version.mts list)"
+          for dir in $dirs; do
+            name="$(node -p "require('./$dir/package.json').name")"
+            if npm view "$name@$VERSION" version >/dev/null 2>&1; then
+              echo "$name@$VERSION is already on npm: skipped"
+              continue
+            fi
+            rm -rf "$tarballs" && mkdir -p "$tarballs"
+            (cd "$dir" && pnpm pack --pack-destination "$tarballs")
+            # shellcheck disable=SC2086 # DRY_RUN holds several flags, or none
+            npm publish "$(ls "$tarballs"/*.tgz)" --provenance --access public $DRY_RUN
+          done
