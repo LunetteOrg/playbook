@@ -28,6 +28,8 @@ in [`schema.yaml`](schema.yaml); this file says how to change the content.
 - One folder per entry type, one file per entry. From a code you get the file:
   RULE-4 is `rules/RULE-4-*.md`. The topic in the file name is lowercase and
   hyphenated, and does not change when the title does.
+- Files an entry needs to be carried out (a script, a model, a template) live
+  in a folder named after its code, next to it: `procedures/PROCEDURE-3/`.
 
 ## Headers and links
 

@@ -53,6 +53,7 @@ export function check(root: string): Result {
   const entries = schema.kinds.flatMap((kind) => readEntries(root, kind, errors))
   const codePattern = codeRegex(schema.kinds)
   const targets = indexTargets(root, schema, entries, errors)
+  checkAttachments(root, schema, targets, errors)
 
   for (const e of entries) {
     const source = category(e.kind, statusOf(e))
@@ -198,6 +199,20 @@ function indexTargets(root: string, schema: Schema, entries: Entry[], errors: st
     }
   }
   return targets
+}
+
+// Files an entry needs (a script, a model, a template) live in a folder named
+// after its code, next to it: procedures/PROCEDURE-3/. They are not entries.
+function checkAttachments(root: string, schema: Schema, targets: Map<string, Target>, errors: string[]) {
+  for (const kind of schema.kinds) {
+    const folder = join(root, kind.folder)
+    if (!kind.prefix || !existsSync(folder)) continue
+    for (const d of readdirSync(folder, { withFileTypes: true })) {
+      if (d.isDirectory() && !targets.get(d.name)?.inRepository) {
+        errors.push(`${kind.folder}/${d.name}/: attachments of ${d.name}, which does not exist`)
+      }
+    }
+  }
 }
 
 function parse(root: string, path: string, errors: string[]) {

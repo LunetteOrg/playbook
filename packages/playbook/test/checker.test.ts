@@ -112,6 +112,22 @@ describe('a consistent playbook', () => {
     const r = playbook({ 'rules/README.md': '# Rules\n' })
     assert.deepEqual(check(r).errors, [])
   })
+
+  test('files in a folder named after an entry are its attachments, not entries', () => {
+    const r = playbook({
+      'procedures/PROCEDURE-1-do.md': procedure('PROCEDURE-1', 'in-force'),
+      'procedures/PROCEDURE-1/generate.py': 'print(1)\n',
+      'procedures/PROCEDURE-1/model.md': '# Model\n',
+    })
+    assert.deepEqual(check(r).errors, [])
+  })
+
+  test('attachments of a missing entry are an error', () => {
+    const r = playbook({ 'procedures/PROCEDURE-2/model.md': '# Model\n' })
+    assert.deepEqual(check(r).errors, [
+      'procedures/PROCEDURE-2/: attachments of PROCEDURE-2, which does not exist',
+    ])
+  })
 })
 
 describe('A: every link leads somewhere', () => {
