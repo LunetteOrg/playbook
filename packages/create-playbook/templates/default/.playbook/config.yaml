@@ -1,10 +1,24 @@
 # Values the playbook's skills read. Skills are never edited to fit a company:
 # what is particular to it goes here.
 
-# Brands the company publishes under, and where each one's design system lives.
-# The apply-design-system skill reads this list.
+# Brands the company publishes under (apply-design-system).
 brands: []
 #  - id: example
 #    name: Example Ltd
-#    design-system: https://example.com/design-system   # a URL or a path in this repository
+#    covers: proposals, contracts, reports, slides and posts of the company
+#    design-system: https://example.com/design-system   # the original: a URL or a path
+#    copies: dated exports in the shared drive, Brand folder # read when the original cannot be reached
 #    default: true
+#  - id: founder
+#    name: The founder as a person
+#    design-system: none
+#    note: the personal brand has its own identity, outside the company's design system
+
+# Where a client's design system lives (apply-design-system).
+clients:
+  design-system: the client's shared folder
+
+# Settings of each shared skill.
+skills:
+  apply-design-system:
+    rules: []   # codes of the rules content must meet before delivery (notes, formats, names)
