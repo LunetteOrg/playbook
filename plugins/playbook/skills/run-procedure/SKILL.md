@@ -13,9 +13,15 @@ method of its own: what to do, in which order and under which rules is in the
 procedure, read every time.
 
 The playbook is the repository you are working in when it has a
-`schema.yaml`; otherwise the folder named by the `PLAYBOOK_DIR` environment
-variable. If neither exists, ask where the playbook is. `schema.yaml` says in
-which folder each type of entry lives.
+`schema.yaml`; otherwise the `path` of its entry in the operator's profile,
+`~/.config/playbook/profile.yaml`; otherwise the folder named by the
+`PLAYBOOK_DIR` environment variable. If none exists, ask where the playbook is.
+`schema.yaml` says in which folder each type of entry lives.
+
+The operator's profile is the entry keyed by the playbook's `company` (in
+`.playbook/config.yaml`): their `roles` and `competences`, ids the playbook's
+configuration describes. Without a profile, ask the operator's role before the
+first step whose owner matters.
 
 ## 1. Find the procedure
 
@@ -31,9 +37,11 @@ Read the header before the text.
 - **Status.** A procedure in force is run as written. A draft or a trial is
   run only if the person asking says so, knowing it is not yet approved. A
   superseded procedure is not run: point to the one that replaces it.
-- **Who carries it out.** If the header says a person carries it out, or names
-  an owner whose decision a step needs, guide that person through it instead of
-  acting for them.
+- **Who carries it out.** Compare the operator's roles with the procedure's
+  owner and with the role each step names. Do the steps that are the
+  operator's; for a step that belongs to another role, prepare what that role
+  needs, say who has to act, and stop there. If the header says a person
+  carries it out, guide the operator through it instead of acting for them.
 - **Data and risk.** If the header marks personal data or a high risk, apply
   the rules it links on data before touching anything.
 

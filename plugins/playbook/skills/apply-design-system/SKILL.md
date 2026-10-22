@@ -13,8 +13,10 @@ one. It reads it every time, because design systems change.
 
 Everything particular to the company is in the playbook's
 `.playbook/config.yaml`. The playbook is the repository you are working in when
-it has a `.playbook/` folder; otherwise the folder named by the `PLAYBOOK_DIR`
-environment variable. If neither exists, ask where the playbook is.
+it has a `.playbook/` folder; otherwise the `path` of its entry in the
+operator's profile, `~/.config/playbook/profile.yaml`; otherwise the folder
+named by the `PLAYBOOK_DIR` environment variable. If none exists, ask where the
+playbook is.
 
 ## 1. Find whose content it is
 

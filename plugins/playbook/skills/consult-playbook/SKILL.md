@@ -14,10 +14,14 @@ It contains no method of its own.
 ## Where the playbook is
 
 The repository you are working in when it has a `schema.yaml`; otherwise the
-folder named by the `PLAYBOOK_DIR` environment variable; otherwise a tool that
-gives access to it, such as the company's document server. If none is
-available, say so and ask: never answer the company's way of working from
-general knowledge.
+`path` of its entry in the operator's profile, `~/.config/playbook/profile.yaml`;
+otherwise the folder named by the `PLAYBOOK_DIR` environment variable;
+otherwise a tool that gives access to it, such as the company's document
+server. If none is available, say so and ask: never answer the company's way
+of working from general knowledge.
+
+The operator's profile, keyed by the playbook's `company`, gives their roles
+and competences.
 
 ## 1. Learn its structure
 
@@ -76,6 +80,9 @@ procedures in the order it lists them.
   where to look.
 - **A vague question.** If a word can mean several things and the answers
   differ, answer each reading briefly and ask which one was meant.
+- Answer for the operator: what their roles do and decide, in the form their
+  competences need. When the answer differs by role and the role is unknown,
+  ask it.
 - Answer with what the playbook says and cite the codes of the entries you
   used, so the reader can open them. Summarise; do not copy whole entries.
 - Say plainly when the playbook does not cover the question, and what is
