@@ -1,6 +1,6 @@
 {
   "name": "@lntt/create-playbook",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Creates a company playbook from the Lunette playbook template: pnpm create @lntt/playbook <name>.",
   "type": "module",
   "license": "MIT",
