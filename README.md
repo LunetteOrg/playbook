@@ -12,7 +12,7 @@ packages/
   create-playbook/   @lntt/create-playbook: pnpm create @lntt/playbook <name>
     templates/default/   an empty company playbook
 plugins/
-  playbook/          skills shared by every playbook (apply-design-system, run-procedure)
+  playbook/          skills shared by every playbook (apply-design-system, consult-playbook, run-procedure)
 .claude-plugin/marketplace.json
 docs/adr/            decisions about the framework
 ```
