@@ -71,7 +71,7 @@ flowchart TB
   start(["New operator"]) --> who["Write who you are and your preferences<br/>where the app keeps them"]
   who --> code{"Coding agent?"}
   code -->|Claude Code| cc["claude plugin install playbook<br/>--marketplace LunetteOrg/playbook"]
-  code -->|Codex, OpenCode, others| npx["npx skills add LunetteOrg/playbook<br/>-g -a &lt;agent&gt;"]
+  code -->|Codex, OpenCode, others| npx["npx skills add LunetteOrg/playbook<br/>-g -a agent-name"]
   code -->|no: chat app| chat["Skills uploaded as archives<br/>by the organization (#9)"]
   code -->|no: workspace tool| ws["Skills imported into the tool (#10)"]
   cc --> clone["Clone the company playbook"]
