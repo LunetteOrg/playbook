@@ -1,8 +1,7 @@
 # Values the playbook's skills read. Skills are never edited to fit a company:
 # what is particular to it goes here.
 
-# The company this playbook belongs to: the key of the playbook in each
-# operator's ~/.config/playbook/profile.yaml.
+# The company this playbook belongs to.
 company: {{name}}
 
 # Who is responsible for what: the values entries use in `owner` and in their
@@ -21,6 +20,12 @@ roles: []
 competences: []
 #  - id: development
 #    name: development
+
+# Where the company keeps each person's record (roles, competences, clients),
+# and how to find a person in it. The records are company data, not here.
+people:
+  where: ""        # e.g. the People database of the workspace tool, or a folder
+  match: email
 
 # Brands the company publishes under (apply-design-system).
 brands: []
