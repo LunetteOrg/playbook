@@ -28,8 +28,8 @@ pnpm playbook check
 The shared skills install as a plugin:
 
 ```sh
-/plugin install playbook@playbook --marketplace LunetteOrg/playbook   # Claude Code
-npx skills add LunetteOrg/playbook                                     # any other agent
+claude plugin install playbook --marketplace LunetteOrg/playbook   # Claude Code
+npx skills add LunetteOrg/playbook -a <agent>                       # any other agent, e.g. -a opencode
 ```
 
 They read the company's values from `.playbook/config.yaml` and are never
