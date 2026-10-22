@@ -6,7 +6,7 @@
     {
       "name": "playbook",
       "source": "./plugins/playbook",
-      "description": "Skills shared by every company playbook: apply-design-system, run-procedure."
+      "description": "Skills shared by every company playbook: apply-design-system, consult-playbook, run-procedure."
     }
   ]
 }
