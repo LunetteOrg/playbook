@@ -68,9 +68,12 @@ procedures in the order it lists them.
 ## 5. Answer
 
 - **A question about a specific client, person or case.** The playbook holds
-  no data about them, by design. Answer with what it says about where such
-  data lives and the rules for reaching it, and say that the data itself is
-  not in the playbook.
+  no data about them, by design: it says where such data lives (the tool
+  cards and the rules on records and folders) and who may reach it. If you
+  have access to those systems, read there what the question needs, only that,
+  following the playbook's rules on access and on data; if the question is a
+  task the playbook describes, use `run-procedure`. If you have no access, say
+  where to look.
 - **A vague question.** If a word can mean several things and the answers
   differ, answer each reading briefly and ask which one was meant.
 - Answer with what the playbook says and cite the codes of the entries you
