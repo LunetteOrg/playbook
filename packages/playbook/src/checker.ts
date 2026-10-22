@@ -54,6 +54,7 @@ export function check(root: string): Result {
   const codePattern = codeRegex(schema.kinds)
   const targets = indexTargets(root, schema, entries, errors)
   checkAttachments(root, schema, targets, errors)
+  checkConfig(root, codePattern, targets, errors)
 
   for (const e of entries) {
     const source = category(e.kind, statusOf(e))
@@ -212,6 +213,16 @@ function checkAttachments(root: string, schema: Schema, targets: Map<string, Tar
         errors.push(`${kind.folder}/${d.name}/: attachments of ${d.name}, which does not exist`)
       }
     }
+  }
+}
+
+// The configuration the skills read may name entries (the rules a skill
+// applies): they must exist.
+function checkConfig(root: string, codePattern: RegExp, targets: Map<string, Target>, errors: string[]) {
+  const file = '.playbook/config.yaml'
+  if (!existsSync(join(root, file))) return
+  for (const code of new Set(readFileSync(join(root, file), 'utf8').match(codePattern) ?? [])) {
+    if (!targets.has(code)) errors.push(`${file}: mentions ${code}, which does not exist`)
   }
 }
 

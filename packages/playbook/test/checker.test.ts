@@ -187,6 +187,13 @@ describe('A: every link leads somewhere', () => {
       ),
     )
   })
+  test('a code in the configuration must exist', () => {
+    const r = playbook({
+      'rules/RULE-1-r.md': rule('RULE-1', 'in-force'),
+      '.playbook/config.yaml': 'skills:\n  apply-design-system:\n    rules: [RULE-1, RULE-7]\n',
+    })
+    assert.deepEqual(check(r).errors, ['.playbook/config.yaml: mentions RULE-7, which does not exist'])
+  })
 })
 
 describe('B: every link leads to something still valid', () => {
