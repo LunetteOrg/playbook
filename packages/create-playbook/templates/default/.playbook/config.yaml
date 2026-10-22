@@ -1,6 +1,27 @@
 # Values the playbook's skills read. Skills are never edited to fit a company:
 # what is particular to it goes here.
 
+# The company this playbook belongs to: the key of the playbook in each
+# operator's ~/.config/playbook/profile.yaml.
+company: {{name}}
+
+# Who is responsible for what: the values entries use in `owner` and in their
+# text. `decides` says what the role approves.
+roles: []
+#  - id: owner
+#    name: the owner
+#    internal: true
+#    decides: prices, contracts, entries in force
+#  - id: freelancer
+#    name: a freelancer working on a client
+#    internal: false
+#    decides: the offer for their own part of the work
+
+# Kinds of work an operator does: they shape an answer, not who decides.
+competences: []
+#  - id: development
+#    name: development
+
 # Brands the company publishes under (apply-design-system).
 brands: []
 #  - id: example

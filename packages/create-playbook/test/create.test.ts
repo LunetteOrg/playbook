@@ -29,6 +29,7 @@ test('the name replaces the placeholders and .gitignore is restored', () => {
   assert.match(readFileSync(join(t, 'README.md'), 'utf8'), /^# acme-playbook$/m)
   assert.equal(JSON.parse(readFileSync(join(t, 'package.json'), 'utf8')).name, 'acme-playbook')
   assert.ok(existsSync(join(t, '.gitignore')))
+  assert.match(readFileSync(join(t, '.playbook', 'config.yaml'), 'utf8'), /^company: acme-playbook$/m)
 })
 
 test('an invalid name is refused', () => {
