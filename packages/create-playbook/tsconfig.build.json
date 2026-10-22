@@ -1,0 +1,16 @@
+{
+  // The published artifact: Node refuses to strip TypeScript types under
+  // node_modules, so the package ships src/ compiled to dist/ with declarations.
+  // dist/ sits at the same depth as src/, so relative paths read at run time are
+  // the same in both. In this repository the sources run directly.
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"]
+}

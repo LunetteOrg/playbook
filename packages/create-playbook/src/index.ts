@@ -7,6 +7,12 @@ import { fileURLToPath } from 'node:url'
 
 export const TEMPLATE = join(dirname(fileURLToPath(import.meta.url)), '..', 'templates', 'default')
 
+// The version of this scaffolder: a new playbook depends on the @lntt/playbook
+// released with it.
+const VERSION: string = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'),
+).version
+
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 export function create(name: string, target: string): void {
@@ -19,7 +25,8 @@ export function create(name: string, target: string): void {
   renameSync(join(target, 'gitignore'), join(target, '.gitignore'))
   for (const file of walk(target)) {
     const text = readFileSync(file, 'utf8')
-    if (text.includes('{{name}}')) writeFileSync(file, text.replaceAll('{{name}}', name))
+    if (text.includes('{{'))
+      writeFileSync(file, text.replaceAll('{{name}}', name).replaceAll('{{version}}', VERSION))
   }
 }
 
