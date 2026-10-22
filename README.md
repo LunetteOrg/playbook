@@ -40,6 +40,9 @@ them (a coding agent's user instructions, a chat app's personal preferences);
 their roles and competences are a record the company keeps, which the
 playbook's `people` points to.
 
+How the framework is composed, where each kind of content lives and how it is
+installed in each app: [docs/architecture.md](docs/architecture.md).
+
 ## What the check verifies
 
 `playbook check` reads `schema.yaml` and verifies that every link between
