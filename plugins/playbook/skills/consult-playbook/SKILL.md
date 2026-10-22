@@ -34,7 +34,8 @@ method: do not use them as a source.
 
 - **By code**: the code gives the file. An entry with prefix `X` and number 4
   is the file in its folder whose name starts with `X-4-`.
-- **By subject**: the title of an entry is its content in one line (for a
+- **By subject**: the title of an entry is the first heading of its text
+  (`# …`), not a header field, and states its content in one line (for a
   rule, the rule itself). Search titles first, then the text.
 - **By field**: areas, owners and other attributes are header fields; filter
   on them.
@@ -66,6 +67,12 @@ procedures in the order it lists them.
 
 ## 5. Answer
 
+- **A question about a specific client, person or case.** The playbook holds
+  no data about them, by design. Answer with what it says about where such
+  data lives and the rules for reaching it, and say that the data itself is
+  not in the playbook.
+- **A vague question.** If a word can mean several things and the answers
+  differ, answer each reading briefly and ask which one was meant.
 - Answer with what the playbook says and cite the codes of the entries you
   used, so the reader can open them. Summarise; do not copy whole entries.
 - Say plainly when the playbook does not cover the question, and what is
@@ -74,3 +81,6 @@ procedures in the order it lists them.
 - To carry out a procedure, use the `run-procedure` skill. To propose a change
   to the playbook, say what and where; the playbook is not edited while
   answering.
+- If you find an entry that breaks the playbook's own rules (data about real
+  clients or people, a contradiction, a link to a retired entry), report it at
+  the end of the answer with its code, as a defect to fix.
