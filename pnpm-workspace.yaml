@@ -1,2 +1,6 @@
 packages:
   - packages/*
+
+# lefthook needs no install script: `prepare` installs the hooks.
+allowBuilds:
+  lefthook: false
