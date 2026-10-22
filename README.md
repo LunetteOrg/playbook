@@ -35,16 +35,10 @@ npx skills add LunetteOrg/playbook -g -a <agent>                    # any other 
 They read the company's values from `.playbook/config.yaml` and are never
 edited to fit a company.
 
-Each operator describes themselves once, in `~/.config/playbook/profile.yaml`
-(never in the playbook):
-
-```yaml
-acme:                              # the playbook's `company`
-  path: ~/work/acme-playbook
-  roles: [freelancer]              # ids from the playbook's `roles`
-  competences: [development]       # ids from the playbook's `competences`
-  language: en
-```
+Each operator says who they are and their preferences where each app keeps
+them (a coding agent's user instructions, a chat app's personal preferences);
+their roles and competences are a record the company keeps, which the
+playbook's `people` points to.
 
 ## What the check verifies
 

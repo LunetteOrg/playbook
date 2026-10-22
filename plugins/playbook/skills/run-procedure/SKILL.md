@@ -13,14 +13,15 @@ method of its own: what to do, in which order and under which rules is in the
 procedure, read every time.
 
 The playbook is the repository you are working in when it has a
-`schema.yaml`; otherwise the `path` of its entry in the operator's profile,
-`~/.config/playbook/profile.yaml`; otherwise the folder named by the
-`PLAYBOOK_DIR` environment variable. If none exists, ask where the playbook is.
-`schema.yaml` says in which folder each type of entry lives.
+`schema.yaml`; otherwise the folder the operator's instructions name;
+otherwise the folder named by the `PLAYBOOK_DIR` environment variable. If none
+exists, ask where the playbook is. `schema.yaml` says in which folder each type
+of entry lives.
 
-The operator's profile is the entry keyed by the playbook's `company` (in
-`.playbook/config.yaml`): their `roles` and `competences`, ids the playbook's
-configuration describes. Without a profile, ask the operator's role before the
+Find out who the operator is: their identity from the app or from their
+instructions, then their record where `people` in `.playbook/config.yaml`
+says. The record gives their roles and competences, described under `roles`
+and `competences`. If you cannot reach it, ask the operator's role before the
 first step whose owner matters.
 
 ## 1. Find the procedure

@@ -14,14 +14,15 @@ It contains no method of its own.
 ## Where the playbook is
 
 The repository you are working in when it has a `schema.yaml`; otherwise the
-`path` of its entry in the operator's profile, `~/.config/playbook/profile.yaml`;
-otherwise the folder named by the `PLAYBOOK_DIR` environment variable;
+folder the operator's instructions name; otherwise the folder named by the
+`PLAYBOOK_DIR` environment variable;
 otherwise a tool that gives access to it, such as the company's document
 server. If none is available, say so and ask: never answer the company's way
 of working from general knowledge.
 
-The operator's profile, keyed by the playbook's `company`, gives their roles
-and competences.
+The operator's roles and competences are in their record, where `people` in
+`.playbook/config.yaml` says; their identity comes from the app or from their
+instructions.
 
 ## 1. Learn its structure
 
